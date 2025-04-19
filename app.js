@@ -41,11 +41,15 @@ window.addEventListener('click', (event) => {
 // Регистрация Service Worker для PWA
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(registration => console.log('SW registered'))
-        .catch(err => console.error('SW registration failed:', err));
+        navigator.serviceWorker.register('/check/sw.js')
+            .then(registration => {
+                console.log('ServiceWorker registration successful');
+            })
+            .catch(err => {
+                console.log('ServiceWorker registration failed: ', err);
+            });
     });
-  }
+}
 
 // Обработчик события beforeinstallprompt
 let deferredPrompt;
@@ -78,26 +82,3 @@ function promptInstall() {
         });
     }
 }
-
-// Проверка соединения при загрузке
-window.addEventListener('load', () => {
-    if (!navigator.onLine) {
-      // Перенаправляем на offline.html если нет соединения
-      if (!window.location.pathname.includes('offline.html')) {
-        window.location.href = '/pwa-test/offline.html';
-      }
-    }
-  });
-  
-  // Отслеживаем изменения соединения
-  window.addEventListener('offline', () => {
-    if (!window.location.pathname.includes('offline.html')) {
-      window.location.href = '/pwa-test/offline.html';
-    }
-  });
-  
-  window.addEventListener('online', () => {
-    if (window.location.pathname.includes('/pwa-test/offline.html')) {
-      window.location.href = '/';
-    }
-  });

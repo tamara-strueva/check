@@ -1,45 +1,32 @@
 const CACHE_NAME = 'visiting-card-cache-v1';
 const urlsToCache = [
-  '/offline.html',
   '/',
-  '/index.html',
-  '/styles.css',
-  '/app.js',
-  '/images/photo.jpg',
-  '/images/phone-qr.png',
-  '/images/telegram-qr.png',
-  '/images/vk-qr.png',
-  '/images/icon-192.png'
+  '/check/index.html',
+  '/check/offline.html',
+  '/check/styles.css',
+  '/check/app.js',
+  '/check/images/photo.jpg',
+  '/check/images/phone-qr.png',
+  '/check/images/telegram-qr.png',
+  '/check/images/vk-qr.png',
+  '/check/images/icon-192.png'
 ];
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
-  );
+self.addEventListener("install", e => {
+  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(FILES)));
+  self.skipWaiting();
 });
-
-self.addEventListener('fetch', event => {
-    event.respondWith(
-      caches.match(event.request)
-        .then(response => response || fetch(event.request))
-        .catch(() => caches.match('/pwa-test/offline.html')) // Fallback
-    );
-  });
-
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+self.addEventListener("activate", e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.map(k => k !== CACHE_NAME && caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+self.addEventListener("fetch", e => {
+  e.respondWith(
+    caches.match(e.request).then(r => r || fetch(e.request))
+      .catch(() => caches.match("/offline.html"))
   );
 });
